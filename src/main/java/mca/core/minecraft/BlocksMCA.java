@@ -1,9 +1,7 @@
 package mca.core.minecraft;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.OreBlock;
-import net.minecraft.block.SoundType;
+import mca.blocks.JewelerWorkbench;
+import net.minecraft.block.*;
 import mca.core.forge.Registration;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
@@ -29,8 +27,8 @@ public final class BlocksMCA {
 //            new Block(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE)));
 
 //TODO <Block> JEWELER_WORKBENCH -> profession of a jeweler
-//    public static final RegistryObject<Block> JEWELER_WORKBENCH = register("jeweler_workbench",() ->
-//            new Block(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE)));
+    public static final RegistryObject<Block> JEWELER_WORKBENCH = register("jeweler_workbench",() ->
+            new JewelerWorkbench(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE)));
 
 
     public static void register() {}

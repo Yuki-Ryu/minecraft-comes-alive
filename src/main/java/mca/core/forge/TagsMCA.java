@@ -44,8 +44,8 @@ public class TagsMCA {
         public static final ITag.INamedTag<Item> GOLD_DUST = forge("gold_dust");
         public static final ITag.INamedTag<Item> MALE_EGG = forge("egg_male");
         public static final ITag.INamedTag<Item> FEMALE_EGG = forge("egg_female");
-        public static final ITag.INamedTag<Item> BABY_BOY = forge("baby_boy");
-        public static final ITag.INamedTag<Item> BABY_GIRL = forge("baby_girl");
+        public static final ITag.INamedTag<Item> BABY_BOY = mca("baby_boy");
+        public static final ITag.INamedTag<Item> BABY_GIRL = mca("baby_girl");
         public static final ITag.INamedTag<Item> WEDDING_RING = forge("wedding_ring");
         public static final ITag.INamedTag<Item> WEDDING_RING_RG = forge("wedding_ring_rg");
         public static final ITag.INamedTag<Item> ENGAGEMENT_RING = forge("engagement_ring");
