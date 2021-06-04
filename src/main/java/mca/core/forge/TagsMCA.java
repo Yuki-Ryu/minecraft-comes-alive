@@ -17,9 +17,9 @@ public class TagsMCA {
     public static final class Blocks {
         public static final ITag.INamedTag<Block> ORES_ROSE_GOLD= forge("ores/rose_gold");
         public static final ITag.INamedTag<Block> STORAGE_BLOCKS_ROSE_GOLD = forge("storage_blocks/rose_gold");
-        public static final ITag.INamedTag<Block> STORAGE_BLOCKS_VILLAGER_SPAWNER = forge("storage_blocks/villager_spawner");
-        public static final ITag.INamedTag<Block> STORAGE_BLOCKS_TOMBSTONE = forge("storage_blocks/tombstone");
-        public static final ITag.INamedTag<Block> STORAGE_BLOCKS_JEWELER_WORKBENCH = forge("storage_blocks/jeweler_workbench");
+        public static final ITag.INamedTag<Block> STORAGE_BLOCKS_VILLAGER_SPAWNER = mca("storage_blocks/villager_spawner");
+        public static final ITag.INamedTag<Block> STORAGE_BLOCKS_TOMBSTONE = mca("storage_blocks/tombstone");
+        public static final ITag.INamedTag<Block> STORAGE_BLOCKS_JEWELER_WORKBENCH = mca("storage_blocks/jeweler_workbench");
 
         private Blocks() {}
 
