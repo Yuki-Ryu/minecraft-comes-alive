@@ -21,5 +21,7 @@ public class BlockTagsProviderMCA extends BlockTagsProvider {
         tag(Tags.Blocks.STORAGE_BLOCKS).addTag(TagsMCA.Blocks.STORAGE_BLOCKS_ROSE_GOLD);
         //tag(TagsMCA.Blocks.STORAGE_BLOCKS_VILLAGER_SPAWNER).add(BlocksMCA.VILLAGER_SPAWNER.get());
         //tag(Tags.Blocks.STORAGE_BLOCKS).addTag(TagsMCA.Blocks.STORAGE_BLOCKS_VILLAGER_SPAWNER);
+        //tag(Tags.Blocks.STORAGE_BLOCKS).addTag(TagsMCA.Blocks.STORAGE_BLOCKS_TOMBSTONE);
+        tag(Tags.Blocks.STORAGE_BLOCKS).addTag(TagsMCA.Blocks.STORAGE_BLOCKS_JEWELER_WORKBENCH);
     }
 }
