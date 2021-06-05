@@ -23,7 +23,7 @@ public class BlockTagsProviderMCA extends BlockTagsProvider {
         //tag(Tags.Blocks.STORAGE_BLOCKS).addTag(TagsMCA.Blocks.STORAGE_BLOCKS_VILLAGER_SPAWNER);
         //tag(TagsMCA.Blocks.STORAGE_BLOCKS_TOMBSTONE).add(BlocksMCA.TOMBSTONE.get());
         //tag(Tags.Blocks.STORAGE_BLOCKS).addTag(TagsMCA.Blocks.STORAGE_BLOCKS_TOMBSTONE);
-        tag(TagsMCA.Blocks.STORAGE_BLOCKS_JEWELER_WORKBENCH).add(BlocksMCA.JEWELER_WORKBENCH.get());
-        tag(Tags.Blocks.STORAGE_BLOCKS).addTag(TagsMCA.Blocks.STORAGE_BLOCKS_JEWELER_WORKBENCH);
+        //tag(TagsMCA.Blocks.STORAGE_BLOCKS_JEWELER_WORKBENCH).add(BlocksMCA.JEWELER_WORKBENCH.get()); // TODO BlocksMCA.JEWELER_WORKBENCH
+        //tag(Tags.Blocks.STORAGE_BLOCKS).addTag(TagsMCA.Blocks.STORAGE_BLOCKS_JEWELER_WORKBENCH);
     }
 }
