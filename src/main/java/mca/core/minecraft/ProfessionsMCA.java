@@ -50,8 +50,9 @@ public class ProfessionsMCA {
         return PROFESSIONS.get(r.nextInt(PROFESSIONS.size()));
     }
 
-    public static final RegistryObject<VillagerProfession> JEWELER = Registration.PROFESSIONS.register("jeweler", ()->
-            new VillagerProfession("jeweler", PointOfInterestTypeMCA.JEWELER.get(), ImmutableSet.of(), ImmutableSet.of(BlocksMCA.JEWELER_WORKBENCH.get()), SoundEvents.VILLAGER_WORK_TOOLSMITH));
+//TODO BlocksMCA.JEWELER_WORKBENCH
+//    public static final RegistryObject<VillagerProfession> JEWELER = Registration.PROFESSIONS.register("jeweler", ()->
+//            new VillagerProfession("jeweler", PointOfInterestTypeMCA.JEWELER.get(), ImmutableSet.of(), ImmutableSet.of(BlocksMCA.JEWELER_WORKBENCH.get()), SoundEvents.VILLAGER_WORK_TOOLSMITH));
 
 
     public static void register() { }
