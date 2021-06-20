@@ -1,15 +1,14 @@
 package mca.items;
 
-import mca.api.cobalt.minecraft.nbt.CNBT;
-import mca.api.cobalt.network.NetworkHandler;
+import mca.cobalt.minecraft.nbt.CNBT;
+import mca.cobalt.network.NetworkHandler;
 import mca.core.Constants;
 import mca.core.MCA;
-import mca.core.forge.TagsMCA;
 import mca.core.minecraft.ItemsMCA;
 import mca.core.minecraft.ProfessionsMCA;
-import mca.data.ItemTagsProviderMCA;
 import mca.entity.VillagerEntityMCA;
-import mca.entity.data.ParentPair;
+import mca.entity.data.FamilyTree;
+import mca.entity.data.FamilyTreeEntry;
 import mca.entity.data.PlayerSaveData;
 import mca.enums.DialogueType;
 import mca.enums.Gender;
@@ -55,20 +54,15 @@ public class BabyItem extends Item {
                 compound.setBoolean("isInfected", false);
 
                 itemStack.setTag(compound.getMcCompound());
-
-
             } else {
                 updateBabyGrowth(itemStack);
             }
             tick++;
-
         }
-
     }
 
     @Override
     public final ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-
         BlockPos pos = player.blockPosition();
         ItemStack stack = player.getItemInHand(hand);
         int posX = pos.getX();
@@ -92,15 +86,26 @@ public class BabyItem extends Item {
 
             PlayerSaveData playerData = PlayerSaveData.get(world, player.getUUID());
 
+            //make sure both parents are registered in the family tree
+            FamilyTree familyTree = child.getFamilyTree();
+            familyTree.addEntry(player);
+
             //assumes your child is from the players current spouse
             //as the father does not have any genes it just takes the one from the mother
             Entity spouse = ((ServerWorld) world).getEntity(playerData.getSpouseUUID());
             if (spouse instanceof VillagerEntityMCA) {
                 VillagerEntityMCA spouseVillager = (VillagerEntityMCA) spouse;
+                familyTree.addEntry(spouseVillager);
                 child.inheritGenes(spouseVillager, spouseVillager);
             }
 
-            child.parents.set(ParentPair.create(player.getUUID(), playerData.getSpouseUUID(), player.getName().getString(), playerData.getSpouseName()).toNBT());
+            //add the child to the family tree
+            FamilyTreeEntry spouseEntry = familyTree.getEntry(playerData.getSpouseUUID());
+            if (spouseEntry != null && spouseEntry.getGender() == Gender.FEMALE) {
+                familyTree.addEntry(child, player.getUUID(), playerData.getSpouseUUID());
+            } else {
+                familyTree.addEntry(child, playerData.getSpouseUUID(), player.getUUID());
+            }
 
             WorldUtils.spawnEntity(world, child);
 

@@ -252,6 +252,7 @@
     "gui.button.revive": "Revive",
     "gui.button.stopworking": "Stop Work",
     "gui.button.call": "Call",
+    "gui.button.familyTree": "Family Tree",
 
     "gui.title.namebaby.male": "It's a boy!",
     "gui.title.namebaby.female": "It's a girl!",
@@ -273,6 +274,7 @@
     "gui.label.minute": "Minute",
     "gui.label.minutes": "Minutes",
     "gui.label.parent": "Parent:",
+    "gui.label.parentUnknown": "unknown",
     "gui.label.male": "Male",
     "gui.label.female": "Female",
     "gui.label.prospecting": "Prospecting",

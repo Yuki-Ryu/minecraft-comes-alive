@@ -1,6 +1,6 @@
 package mca.core.minecraft;
 
-import mca.api.cobalt.network.NetworkHandler;
+import mca.cobalt.network.NetworkHandler;
 import mca.network.*;
 
 public class MessagesMCA {
@@ -19,6 +19,10 @@ public class MessagesMCA {
         NetworkHandler.registerMessage(OpenGuiRequest.class);
         NetworkHandler.registerMessage(ReportBuildingMessage.class);
         NetworkHandler.registerMessage(SaveVillageMessage.class);
+        NetworkHandler.registerMessage(GetFamilyTreeRequest.class);
+        NetworkHandler.registerMessage(GetFamilyTreeResponse.class);
+        NetworkHandler.registerMessage(GetInteractDataRequest.class);
+        NetworkHandler.registerMessage(GetInteractDataResponse.class);
     }
 
     public static void register() {

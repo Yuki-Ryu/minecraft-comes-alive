@@ -2,21 +2,21 @@ package mca.client.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mca.api.API;
-import mca.api.cobalt.network.NetworkHandler;
 import mca.api.types.APIIcon;
 import mca.client.gui.component.ButtonEx;
+import mca.cobalt.network.NetworkHandler;
 import mca.core.Constants;
 import mca.core.MCA;
 import mca.core.minecraft.ProfessionsMCA;
 import mca.entity.VillagerEntityMCA;
 import mca.entity.data.Memories;
-import mca.entity.data.ParentPair;
-import mca.enums.AgeState;
 import mca.enums.Chore;
 import mca.enums.MarriageState;
 import mca.enums.MoveState;
+import mca.network.GetInteractDataRequest;
 import mca.network.InteractionServerMessage;
 import mca.network.InteractionVillagerMessage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,18 +30,23 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiInteract extends Screen {
     private static final ResourceLocation ICON_TEXTURES = new ResourceLocation("mca:textures/gui.png");
     private final VillagerEntityMCA villager;
+    private Map<String, Boolean> constraints;
     private final PlayerEntity player;
     private final float iconScale = 1.5f;
     private boolean inGiftMode;
     private int timeSinceLastClick;
     private int mouseX;
     private int mouseY;
+
+    private String father;
+    private String mother;
 
     // Tracks which page we're on in the GUI for sending button events
     private String activeKey;
@@ -66,7 +71,7 @@ public class GuiInteract extends Screen {
 
     @Override
     public void init() {
-        drawMainButtonMenu();
+        NetworkHandler.sendToServer(new GetInteractDataRequest(villager.getUUID()));
     }
 
     public void addExButton(ButtonEx b) {
@@ -234,8 +239,10 @@ public class GuiInteract extends Screen {
 
         //parents
         if (canDrawParentsIcon() && hoveringOverIcon("parents")) {
-            ParentPair data = ParentPair.fromNBT(villager.parents.get());
-            drawHoveringIconText(transform, MCA.localize("gui.interact.label.parents", data.getParent1Name(), data.getParent2Name()), "parents");
+            drawHoveringIconText(transform, MCA.localize("gui.interact.label.parents",
+                    father == null ? MCA.localize("gui.interact.label.parentUnknown") : father,
+                    mother == null ? MCA.localize("gui.interact.label.parentUnknown") : mother
+            ), "parents");
         }
 
         //gift
@@ -281,9 +288,7 @@ public class GuiInteract extends Screen {
     }
 
     private boolean canDrawParentsIcon() {
-        ParentPair data = ParentPair.fromNBT(villager.parents.get());
-        return !data.getParent1UUID().equals(Constants.ZERO_UUID) &&
-                !data.getParent2UUID().equals(Constants.ZERO_UUID);
+        return father != null || mother != null;
     }
 
     private boolean canDrawGiftIcon() {
@@ -309,6 +314,8 @@ public class GuiInteract extends Screen {
         } else if (id.equals("gui.button.clothing")) {
             activeKey = "clothing";
             drawClothingMenu();
+        } else if (id.equals("gui.button.familyTree")) {
+            Minecraft.getInstance().setScreen(new GuiFamilyTree(villager.getUUID()));
         } else if (id.equals("gui.button.work")) {
             activeKey = "work";
             drawWorkButtonMenu();
@@ -344,17 +351,17 @@ public class GuiInteract extends Screen {
 
     private void drawMainButtonMenu() {
         clearButtons();
-        API.addButtons("main", villager, player, this);
+        API.addButtons("main", this);
     }
 
     private void drawInteractButtonMenu() {
         clearButtons();
-        API.addButtons("interact", villager, player, this);
+        API.addButtons("interact", this);
     }
 
     private void drawCommandButtonMenu() {
         clearButtons();
-        API.addButtons("command", villager, player, this);
+        API.addButtons("command", this);
 
         int id = villager.moveState.get();
         switch (MoveState.byId(id)) {
@@ -372,12 +379,12 @@ public class GuiInteract extends Screen {
 
     private void drawClothingMenu() {
         clearButtons();
-        API.addButtons("clothing", villager, player, this);
+        API.addButtons("clothing", this);
     }
 
     private void drawWorkButtonMenu() {
         clearButtons();
-        API.addButtons("work", villager, player, this);
+        API.addButtons("work", this);
 
         int id = villager.activeChore.get();
         switch (Chore.byId(id)) {
@@ -403,7 +410,7 @@ public class GuiInteract extends Screen {
 
     private void drawLocationsButtonMenu() {
         clearButtons();
-        API.addButtons("locations", villager, player, this);
+        API.addButtons("locations", this);
     }
 
     private void disableButton(String id) {
@@ -428,5 +435,19 @@ public class GuiInteract extends Screen {
                 b.active = false;
             }
         });
+    }
+
+    public Map<String, Boolean> getConstraints() {
+        return constraints;
+    }
+
+    public void setConstraints(Map<String, Boolean> constraints) {
+        this.constraints = constraints;
+        drawMainButtonMenu();
+    }
+
+    public void setParents(String father, String mother) {
+        this.father = father;
+        this.mother = mother;
     }
 }

@@ -1,16 +1,20 @@
 package mca.network;
 
-import mca.api.cobalt.minecraft.nbt.CNBT;
-import mca.api.cobalt.network.Message;
-import mca.api.cobalt.network.NetworkHandler;
+import mca.cobalt.minecraft.nbt.CNBT;
+import mca.cobalt.network.Message;
+import mca.cobalt.network.NetworkHandler;
 import mca.entity.VillagerEntityMCA;
-import mca.util.WorldUtils;
+import mca.entity.data.FamilyTree;
+import mca.entity.data.PlayerSaveData;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class GetVillagerRequest extends Message {
     public GetVillagerRequest() {
@@ -21,13 +25,21 @@ public class GetVillagerRequest extends Message {
     public void receive(ServerPlayerEntity player) {
         Map<String, CNBT> familyData = new HashMap<>();
 
+        //fetches all members
+        //de-loaded members are excluded as can't teleport anyways
+        Set<UUID> family = FamilyTree.get(player.level).getFamily(player.getUUID());
 
-        //family could be everywhere and need to be loaded since we don't know their UUID
-        List<VillagerEntityMCA> family = WorldUtils.getCloseEntities(player.level, player, 1024.0, VillagerEntityMCA.class);
-        for (VillagerEntityMCA e : family) {
-            if (e.isMarriedTo(player.getUUID()) || e.playerIsParent(player)) {
+        //spouse
+        PlayerSaveData playerData = PlayerSaveData.get(player.level, player.getUUID());
+        family.add(playerData.getSpouseUUID());
+
+        //pack information
+        for (UUID member : family) {
+            Entity e = ((ServerWorld) player.level).getEntity(member);
+            if (e instanceof VillagerEntityMCA) {
+                VillagerEntityMCA v = (VillagerEntityMCA) e;
                 CompoundNBT nbt = new CompoundNBT();
-                e.addAdditionalSaveData(nbt);
+                v.addAdditionalSaveData(nbt);
                 familyData.put(e.getUUID().toString(), CNBT.fromMC(nbt));
             }
         }

@@ -131,7 +131,7 @@ public class API {
     //returns the clothing group based of gender and profession, or a random one in case of an unknown clothing group
     private static List<WeightedEntry> getClothing(VillagerEntityMCA villager) {
         String profession = Objects.requireNonNull(villager.getProfession().getRegistryName()).toString();
-        Gender gender = Gender.byId(villager.gender.get());
+        Gender gender = villager.getGender();
 
         if (clothing.get(gender).containsKey(profession)) {
             return clothing.get(gender).get(profession);
@@ -201,7 +201,7 @@ public class API {
      * @return String location of the random skin
      */
     public static Hair getRandomHair(VillagerEntityMCA villager) {
-        Gender gender = Gender.byId(villager.gender.get());
+        Gender gender = villager.getGender();
         List<Hair> hairs = hair.get(gender);
         return hairs.get(rng.nextInt(hairs.size()));
     }
@@ -213,7 +213,7 @@ public class API {
 
     //returns the next clothing with given offset to current
     public static Hair getNextHair(VillagerEntityMCA villager, Hair current, int next) {
-        Gender gender = Gender.byId(villager.gender.get());
+        Gender gender = villager.getGender();
         List<Hair> hairs = hair.get(gender);
 
         //look for the current one
@@ -292,24 +292,16 @@ public class API {
      * Adds API buttons to the GUI screen provided.
      *
      * @param guiKey   String key for the GUI's buttons
-     * @param villager Optional EntityVillagerMCA the Screen has been opened on
-     * @param player   PlayerEntity who has opened the GUI
      * @param screen   Screen instance the buttons should be added to
      */
-    public static void addButtons(String guiKey, @Nullable VillagerEntityMCA villager, PlayerEntity player, GuiInteract screen) {
+    public static void addButtons(String guiKey, GuiInteract screen) {
         for (APIButton b : buttonMap.get(guiKey)) {
             ButtonEx guiButton = new ButtonEx(screen, b);
             screen.addExButton(guiButton);
 
-            // Ensure that if a constraint is attached to the button
-            if (villager == null && b.getConstraints().size() > 0) {
-                MCA.log("No villager provided for list of buttons with constraints! Button ID:" + b.getIdentifier());
-                continue;
-            }
-
             // Remove the button if we specify it should not be present on constraint failure
             // Otherwise we just mark the button as disabled.
-            boolean isValid = b.isValidForConstraint(villager, player);
+            boolean isValid = b.isValidForConstraint(screen.getConstraints());
             if (!isValid && b.getConstraints().contains(Constraint.HIDE_ON_FAIL)) {
                 guiButton.visible = false;
             } else if (!isValid) {
