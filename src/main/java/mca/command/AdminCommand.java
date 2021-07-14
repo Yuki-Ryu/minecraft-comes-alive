@@ -5,8 +5,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mca.core.Constants;
-import mca.core.minecraft.ItemsMCA;
 import mca.entity.VillagerEntityMCA;
 import mca.entity.data.Memories;
 import mca.entity.data.PlayerSaveData;
@@ -20,7 +20,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.server.ServerWorld;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -39,8 +38,6 @@ public class AdminCommand {
                 .then(register("forceChildGrowth", AdminCommand::forceChildGrowth))
                 .then(register("incrementHearts", AdminCommand::incrementHearts))
                 .then(register("decrementHearts", AdminCommand::decrementHearts))
-                //.then(register("dumpPlayerData", AdminCommand::dumpPlayerData))
-                //.then(register("resetVillagerData", AdminCommand::resetVillagerData))
                 .then(register("resetPlayerData", AdminCommand::resetPlayerData))
                 .then(register("listVillages", AdminCommand::listVillages))
                 .then(register().then(Commands.argument("id", IntegerArgumentType.integer()).executes(AdminCommand::removeVillage)))
@@ -73,17 +70,6 @@ public class AdminCommand {
         return 0;
     }
 
-    private static int clearVillagerEditors(CommandContext<CommandSource> ctx) {
-        PlayerEntity player = (PlayerEntity) ctx.getSource().getEntity();
-        for (int i = 0; i < player.inventory.getContainerSize(); i++) {
-            ItemStack stack = player.inventory.getItem(i);
-            if (stack.getItem() == ItemsMCA.VILLAGER_EDITOR.get()) {
-                player.inventory.removeItem(stack);
-            }
-        }
-        return 0;
-    }
-
     private static int resetPlayerData(CommandContext<CommandSource> ctx) {
         PlayerEntity player = (PlayerEntity) ctx.getSource().getEntity();
         PlayerSaveData playerData = PlayerSaveData.get(player.level, player.getUUID());
@@ -91,16 +77,8 @@ public class AdminCommand {
         return 0;
     }
 
-    private static int resetVillagerData(CommandContext<CommandSource> ctx) {
-        return 0;
-    }
-
-    private static int dumpPlayerData(CommandContext<CommandSource> ctx) {
-        return 0;
-    }
-
-    private static int decrementHearts(CommandContext<CommandSource> ctx) {
-        PlayerEntity player = (PlayerEntity) ctx.getSource().getEntity();
+    private static int decrementHearts(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        PlayerEntity player = ctx.getSource().getPlayerOrException();
         getLoadedVillagers(ctx).forEach(v -> {
             Memories memories = ((VillagerEntityMCA) v).getMemoriesForPlayer(player);
             memories.setHearts(memories.getHearts() - 10);
@@ -109,8 +87,8 @@ public class AdminCommand {
         return 0;
     }
 
-    private static int incrementHearts(CommandContext<CommandSource> ctx) {
-        PlayerEntity player = (PlayerEntity) ctx.getSource().getEntity();
+    private static int incrementHearts(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        PlayerEntity player = ctx.getSource().getPlayerOrException();
         getLoadedVillagers(ctx).forEach(v -> {
             Memories memories = ((VillagerEntityMCA) v).getMemoriesForPlayer(player);
             memories.setHearts(memories.getHearts() + 10);
@@ -124,8 +102,8 @@ public class AdminCommand {
         return 0;
     }
 
-    private static int forceBabyGrowth(CommandContext<CommandSource> ctx) {
-        PlayerEntity player = (PlayerEntity) ctx.getSource().getEntity();
+    private static int forceBabyGrowth(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        PlayerEntity player = ctx.getSource().getPlayerOrException();
         ItemStack heldStack = player.getMainHandItem();
 
         if (heldStack.getItem() instanceof BabyItem) {
@@ -134,8 +112,8 @@ public class AdminCommand {
         return 0;
     }
 
-    private static int forceFullHearts(CommandContext<CommandSource> ctx) {
-        PlayerEntity player = (PlayerEntity) ctx.getSource().getEntity();
+    private static int forceFullHearts(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        PlayerEntity player = ctx.getSource().getPlayerOrException();
         getLoadedVillagers(ctx).forEach(v -> {
             Memories memories = ((VillagerEntityMCA) v).getMemoriesForPlayer(player);
             memories.setHearts(100);
@@ -145,9 +123,8 @@ public class AdminCommand {
     }
 
     private static int restoreClearedVillagers(CommandContext<CommandSource> ctx) {
-        ServerWorld world = ctx.getSource().getLevel();
-//        prevVillagersRemoved.forEach(world::addEntity);
         prevVillagersRemoved.clear();
+        //TODO wut
         success("Restored cleared villagers.", ctx);
         return 0;
     }
@@ -183,10 +160,11 @@ public class AdminCommand {
         ctx.getSource().sendFailure(new StringTextComponent(Constants.Color.RED + "Village with this ID does not exist."));
     }
 
-    private static int displayHelp(CommandContext<CommandSource> ctx) {
-        Entity player = ctx.getSource().getEntity();
+    private static int displayHelp(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        Entity player = ctx.getSource().getEntityOrException();
         String white = Constants.Color.WHITE;
         String gold = Constants.Color.GOLD;
+
         sendMessage(player, Constants.Color.DARKRED + "--- " + gold + "OP COMMANDS" + Constants.Color.DARKRED + " ---");
         sendMessage(player, white + " /mca-admin forceFullHearts " + gold + " - Force all hearts on all villagers.");
         sendMessage(player, white + " /mca-admin forceBabyGrowth " + gold + " - Force your baby to grow up.");
@@ -209,7 +187,6 @@ public class AdminCommand {
         sendMessage(player, white + " /mca-admin help " + gold + " - Shows this list of commands.");
         return 0;
     }
-
 
     private static void sendMessage(Entity commandSender, String message) {
         commandSender.sendMessage(new StringTextComponent(Constants.Color.GOLD + "[MCA] " + Constants.Format.RESET + message), Util.NIL_UUID);

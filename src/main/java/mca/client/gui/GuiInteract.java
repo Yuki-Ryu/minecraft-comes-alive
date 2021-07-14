@@ -36,9 +36,9 @@ import java.util.Objects;
 public class GuiInteract extends Screen {
     private static final ResourceLocation ICON_TEXTURES = new ResourceLocation("mca:textures/gui.png");
     private final VillagerEntityMCA villager;
-    private Map<String, Boolean> constraints;
     private final PlayerEntity player;
     private final float iconScale = 1.5f;
+    private Map<String, Boolean> constraints;
     private boolean inGiftMode;
     private int timeSinceLastClick;
     private int mouseX;
