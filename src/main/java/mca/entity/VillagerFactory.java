@@ -2,6 +2,7 @@ package mca.entity;
 
 import mca.api.API;
 import mca.core.MCA;
+import mca.enums.AgeState;
 import mca.enums.Gender;
 import mca.util.WorldUtils;
 import net.minecraft.entity.Entity;
@@ -70,7 +71,7 @@ public class VillagerFactory {
 
     public VillagerFactory withPosition(BlockPos pos) {
         isPositionSet = true;
-        villager.setPos(pos.getX(), pos.getY() + 1, pos.getZ());
+        villager.setPos(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
         return this;
     }
 
@@ -110,7 +111,7 @@ public class VillagerFactory {
 
         if (!isAgeSet) {
             //give it a random age between baby and adult
-            villager.setAge(villager.getRandom().nextInt(24000 * 2) - 24000);
+            villager.setAge(villager.getRandom().nextInt(AgeState.startingAge * 2) - AgeState.startingAge);
         }
 
         return villager;
