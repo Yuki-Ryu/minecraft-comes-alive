@@ -3,6 +3,7 @@ package mca.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import mca.entity.VillagerEntityMCA;
+import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.ArrayList;
@@ -20,7 +21,8 @@ public enum Constraint {
     SPOUSE("spouse", (villager, player) -> !villager.isMarriedTo(player.getUUID())),
     NOT_SPOUSE("notspouse", (villager, player) -> villager.isMarriedTo(player.getUUID())),
     HIDE_ON_FAIL("hideonfail", (villager, player) -> false), //internal
-    NOT_YOUR_KIDS("notyourkids", (villager, player) -> villager.getFamilyTree().isParent(villager.getUUID(), player.getUUID()));
+    NOT_YOUR_KIDS("notyourkids", (villager, player) -> villager.getFamilyTree().isParent(villager.getUUID(), player.getUUID())),
+    CLERIC("cleric", (villager, player) -> villager.getProfession() != VillagerProfession.CLERIC);
 
     String id;
     //* Returns true if it should not show the button

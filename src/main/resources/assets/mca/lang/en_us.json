@@ -136,7 +136,7 @@
 
     "gui.village.left": "You left %v1%.",
     "gui.village.welcome": "Welcome to %v1%!",
-    "gui.village.taxes": "%v1% paid their taxes!",
+    "gui.village.taxesPaid": "%v1% paid their taxes!",
     "gui.village.taxesNotImplemented": "WIP, please be patient!",
 
     "gui.village.taxes": "Taxes",
@@ -146,6 +146,9 @@
     "gui.village.rankTooLow": "You need a higher rank.",
     "gui.village.rank": "Rank: %v1%",
     "gui.village.reputation": "Reputation: %v1%",
+
+    "gui.village.divorceConfirmation": "Do you really want a divorce?",
+    "gui.village.divorcePaperWarning": "A cleric can provide divorce papers to decrease penalties.",
 
     "gui.building.size": "size: %v1% blocks",
     "gui.building.anySize": "size: any",
@@ -221,6 +224,11 @@
 
     "gui.button.village": "Village",
 
+    "gui.button.divorceInitiate": "Divorce",
+    "gui.button.divorceConfirm": "confirm",
+    "gui.button.divorceCancel": "cancel",
+    "gui.button.divorcePapers": "divorce papers",
+
     "gui.button.clothing.randClothing": "Random Clothes",
     "gui.button.clothing.prevClothing": "Prev",
     "gui.button.clothing.nextClothing": "Next",
@@ -237,7 +245,6 @@
 
     "gui.button.start": "Start",
     "gui.button.stop": "Stop",
-    "gui.button.divorce": "Divorce",
     "gui.button.hire": "Hire",
     "gui.button.hired": "Hired",
     "gui.button.accept": "Accept",
@@ -463,6 +470,7 @@
     "spouse.welcome1": "Welcome home Darling!",
 
     "generic.welcomeFoe1": "Not you again!",
+    "generic.cleric.divorcePapers": "Here you go, bring these papers to your spouse to confirm the divorce.",
 
     "adult.gift.fail1": "This isn't a good gift...",
     "adult.gift.fail2": "What made you think that I would like this?",
@@ -784,6 +792,8 @@
     "spouse.endmarriage2": "I'm leaving. Forever! Don't look for me.",
     "spouse.endmarriage3": "I'm sorry - I thought we could work things out, but it's not working for me. Goodbye.",
     "spouse.endmarriage4": "%v1%, this is goodbye. Don't try to follow me.",
+    "spouse.divorce1": "I hate you, %v1%!",
+    "spouse.divorcePaper1": "Okay...",
     "spouse.gift.fail1": "Oh honey...this is just terrible.",
     "spouse.gift.fail2": "Um, is this supposed to be a gift for me?",
     "spouse.gift.fail3": "Throw away your own junk! Oh, this was a gift?...sorry.",

@@ -65,7 +65,6 @@ public enum Interaction {
     public int getSuccessChance(VillagerEntityMCA villager, Memories memory) {
         return getBaseChance()
                 - memory.getInteractionFatigue() * 5
-                + memory.getHearts() / 5
                 + villager.getPersonality().getSuccessModifierForInteraction(this)
                 + villager.getMood().getSuccessModifierForInteraction(this)
                 + villager.getMood().getMoodGroup().getSuccessModifierForInteraction(this)

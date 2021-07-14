@@ -9,6 +9,7 @@ import mca.core.Constants;
 import mca.core.minecraft.ItemsMCA;
 import mca.entity.VillagerEntityMCA;
 import mca.entity.data.Memories;
+import mca.entity.data.PlayerSaveData;
 import mca.entity.data.Village;
 import mca.entity.data.VillageManagerData;
 import mca.items.BabyItem;
@@ -31,18 +32,16 @@ public class AdminCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("mca-admin")
                 .then(register("help", AdminCommand::displayHelp))
-                .then(register("clv", AdminCommand::clearLoadedVillagers))
-                .then(register("rcv", AdminCommand::restoreClearedVillagers))
-                .then(register("ffh", AdminCommand::forceFullHearts))
-                .then(register("fbg", AdminCommand::forceBabyGrowth))
-                .then(register("fcg", AdminCommand::forceChildGrowth))
-                .then(register("inh", AdminCommand::incrementHearts))
-                .then(register("deh", AdminCommand::decrementHearts))
-                //.then(register("sgr", CommandMCAAdmin::spawnGrimReaper))
-                //.then(register("kgr", CommandMCAAdmin::killGrimReaper))
-                //.then(register("dpd", CommandMCAAdmin::dumpPlayerData))
-                //.then(register("rvd", CommandMCAAdmin::resetVillagerData))
-                //.then(register("rpd", CommandMCAAdmin::resetPlayerData))
+                .then(register("clearLoadedVillagers", AdminCommand::clearLoadedVillagers))
+                .then(register("restoreClearedVillagers", AdminCommand::restoreClearedVillagers))
+                .then(register("forceFullHearts", AdminCommand::forceFullHearts))
+                .then(register("forceBabyGrowth", AdminCommand::forceBabyGrowth))
+                .then(register("forceChildGrowth", AdminCommand::forceChildGrowth))
+                .then(register("incrementHearts", AdminCommand::incrementHearts))
+                .then(register("decrementHearts", AdminCommand::decrementHearts))
+                //.then(register("dumpPlayerData", AdminCommand::dumpPlayerData))
+                //.then(register("resetVillagerData", AdminCommand::resetVillagerData))
+                .then(register("resetPlayerData", AdminCommand::resetPlayerData))
                 .then(register("listVillages", AdminCommand::listVillages))
                 .then(register().then(Commands.argument("id", IntegerArgumentType.integer()).executes(AdminCommand::removeVillage)))
         );
@@ -86,6 +85,9 @@ public class AdminCommand {
     }
 
     private static int resetPlayerData(CommandContext<CommandSource> ctx) {
+        PlayerEntity player = (PlayerEntity) ctx.getSource().getEntity();
+        PlayerSaveData playerData = PlayerSaveData.get(player.level, player.getUUID());
+        playerData.reset();
         return 0;
     }
 
@@ -94,14 +96,6 @@ public class AdminCommand {
     }
 
     private static int dumpPlayerData(CommandContext<CommandSource> ctx) {
-        return 0;
-    }
-
-    private static int killGrimReaper(CommandContext<CommandSource> ctx) {
-        return 0;
-    }
-
-    private static int spawnGrimReaper(CommandContext<CommandSource> ctx) {
         return 0;
     }
 
@@ -190,22 +184,29 @@ public class AdminCommand {
     }
 
     private static int displayHelp(CommandContext<CommandSource> ctx) {
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.DARKRED + "--- " + Constants.Color.GOLD + "OP COMMANDS" + Constants.Color.DARKRED + " ---");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin ffh " + Constants.Color.GOLD + " - Force all hearts on all villagers.");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin fbg " + Constants.Color.GOLD + " - Force your baby to grow up.");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin fcg " + Constants.Color.GOLD + " - Force nearby children to grow.");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin clv " + Constants.Color.GOLD + " - Clear all loaded villagers. " + Constants.Color.RED + "(IRREVERSABLE)");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin rcv " + Constants.Color.GOLD + " - Restores cleared villagers. ");
+        Entity player = ctx.getSource().getEntity();
+        String white = Constants.Color.WHITE;
+        String gold = Constants.Color.GOLD;
+        sendMessage(player, Constants.Color.DARKRED + "--- " + gold + "OP COMMANDS" + Constants.Color.DARKRED + " ---");
+        sendMessage(player, white + " /mca-admin forceFullHearts " + gold + " - Force all hearts on all villagers.");
+        sendMessage(player, white + " /mca-admin forceBabyGrowth " + gold + " - Force your baby to grow up.");
+        sendMessage(player, white + " /mca-admin forceChildGrowth " + gold + " - Force nearby children to grow.");
+        sendMessage(player, white + " /mca-admin clearLoadedVillagers " + gold + " - Clear all loaded villagers. " + Constants.Color.RED + "(IRREVERSABLE)");
+        sendMessage(player, white + " /mca-admin restoreClearedVillagers " + gold + " - Restores cleared villagers. ");
 
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin listVillages " + Constants.Color.GOLD + " - Prints a list of all villages.");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin removeVillage id" + Constants.Color.GOLD + " - Removed a village with given id.");
+        sendMessage(player, white + " /mca-admin listVillages " + gold + " - Prints a list of all villages.");
+        sendMessage(player, white + " /mca-admin removeVillage id" + gold + " - Removed a village with given id.");
 
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin inh " + Constants.Color.GOLD + " - Increase hearts by 10.");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin deh " + Constants.Color.GOLD + " - Decrease hearts by 10.");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin cve" + Constants.Color.GOLD + " - Remove all villager editors from the game.");
+        sendMessage(player, white + " /mca-admin incrementHearts " + gold + " - Increase hearts by 10.");
+        sendMessage(player, white + " /mca-admin decrementHearts " + gold + " - Decrease hearts by 10.");
 
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.DARKRED + "--- " + Constants.Color.GOLD + "GLOBAL COMMANDS" + Constants.Color.DARKRED + " ---");
-        sendMessage(ctx.getSource().getEntity(), Constants.Color.WHITE + " /mca-admin help " + Constants.Color.GOLD + " - Shows this list of commands.");
+        sendMessage(player, white + " /mca-admin resetPlayerData " + gold + " - Resets hearts, marriage statuc etc.");
+
+        sendMessage(player, white + " /mca-admin listVillages " + gold + " - List all known villages.");
+        sendMessage(player, white + " /mca-admin removeVillage " + gold + " - Remove a given village.");
+
+        sendMessage(player, Constants.Color.DARKRED + "--- " + gold + "GLOBAL COMMANDS" + Constants.Color.DARKRED + " ---");
+        sendMessage(player, white + " /mca-admin help " + gold + " - Shows this list of commands.");
         return 0;
     }
 

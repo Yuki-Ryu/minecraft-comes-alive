@@ -33,6 +33,8 @@ public final class ItemsMCA {
     public static final RegistryObject<Item> ROSE_GOLD_DUST = Registration.ITEMS.register("rose_gold_dust", () -> new Item(new Item.Properties().tab(ItemGroupMCA.MCA)));
     public static final RegistryObject<Item> ROSE_GOLD_INGOT = Registration.ITEMS.register("rose_gold_ingot", () -> new Item(new Item.Properties().tab(ItemGroupMCA.MCA)));
 
+    public static final RegistryObject<Item> DIVORCE_PAPERS = Registration.ITEMS.register("divorce_papers", () -> new Item(new Item.Properties().tab(ItemGroupMCA.MCA)));
+
 
     public static void register() {
     }

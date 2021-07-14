@@ -111,6 +111,7 @@ public class API {
         buttonMap.put("locations", Util.readResourceAsJSON("api/gui/locations.json", APIButton[].class));
         buttonMap.put("command", Util.readResourceAsJSON("api/gui/command.json", APIButton[].class));
         buttonMap.put("clothing", Util.readResourceAsJSON("api/gui/clothing.json", APIButton[].class));
+        buttonMap.put("divorce", Util.readResourceAsJSON("api/gui/divorce.json", APIButton[].class));
 
         // Icons
         Type mapType = new TypeToken<Map<String, APIIcon>>() {

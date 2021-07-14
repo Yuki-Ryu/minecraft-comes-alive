@@ -701,6 +701,12 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
         return spouseUUID.get().orElse(Constants.ZERO_UUID).equals(uuid);
     }
 
+    public void divorce() {
+        spouseUUID.set(Constants.ZERO_UUID);
+        spouseName.set("");
+        marriageState.set(MarriageState.NOT_MARRIED.getId());
+    }
+
     public void marry(PlayerEntity player) {
         spouseUUID.set(player.getUUID());
         spouseName.set(player.getName().getContents());
@@ -723,14 +729,13 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
         //interaction
         String interactionName = button.getIdentifier().replace("gui.button.", "");
         Interaction interaction = Interaction.fromName(interactionName);
+        if (interaction == null) {
+            return;
+        }
 
         //success chance and hearts
-        float successChance = 0.85F;
-        int heartsBoost = 5;
-        if (interaction != null) {
-            heartsBoost = interaction.getHearts(this);
-            successChance = interaction.getSuccessChance(this, memory) / 100.0f;
-        }
+        int heartsBoost = interaction.getHearts(this);
+        float successChance = interaction.getSuccessChance(this, memory) / 100.0f;
 
         boolean succeeded = random.nextFloat() < successChance;
 
@@ -864,6 +869,31 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
                     procreateTick = 60;
                     isProcreating.set(true);
                 }
+                closeGUIIfOpen();
+                break;
+            case "gui.button.divorcePapers":
+                player.inventory.add(new ItemStack(ItemsMCA.DIVORCE_PAPERS.get()));
+                say(player, "cleric.divorcePapers");
+                closeGUIIfOpen();
+                break;
+            case "gui.button.divorceConfirm":
+                //this lambda is meh
+                int divorcePaper = InventoryUtils.getFirstSlotContainingItem(player.inventory, s -> s.getItem().getDescriptionId().equals(ItemsMCA.DIVORCE_PAPERS.get().getDescriptionId()));
+                Memories memories = getMemoriesForPlayer(player);
+                if (divorcePaper >= 0) {
+                    say(player, "divorcePaper");
+                    player.inventory.getItem(divorcePaper).shrink(1);
+                    memories.modHearts(-20);
+                } else {
+                    say(player, "divorce");
+                    memories.modHearts(-200);
+                }
+                modifyMoodLevel(-5);
+                divorce();
+
+                PlayerSaveData playerData = PlayerSaveData.get(player.level, player.getUUID());
+                playerData.endMarriage();
+
                 closeGUIIfOpen();
                 break;
             case "gui.button.infected":
