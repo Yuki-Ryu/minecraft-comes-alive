@@ -28,7 +28,7 @@ import java.util.*;
  * Class API handles interaction with MCAs configurable options via JSON in the resources folder
  */
 public class API {
-    private static final Map<String, Gift> giftMap = new HashMap<>();
+    private static final Map<String, Double> giftMap = new HashMap<>();
     private static final Map<String, APIButton[]> buttonMap = new HashMap<>();
     private static final Map<String, APIIcon> iconMap = new HashMap<>();
     private static final List<String> maleNames = new ArrayList<>();
@@ -117,14 +117,8 @@ public class API {
         iconMap.putAll((new Gson()).fromJson(Util.readResource("api/gui/icons.json"), mapType));
 
         // Load gifts and assign to the appropriate map with a key value pair and print warnings on potential issues
-        Gift[] gifts = Util.readResourceAsJSON("api/gifts.json", Gift[].class);
-        for (Gift gift : gifts) {
-            if (!gift.exists()) {
-                MCA.log("Could not find gift item or block in registry: " + gift.getName());
-            } else {
-                giftMap.put(gift.getName(), gift);
-            }
-        }
+        Map<String, Double> gifts = Util.readResourceAsJSON("api/gifts.json", Map.class);
+        giftMap.putAll(gifts);
     }
 
     //returns the clothing group based of gender and profession, or a random one in case of an unknown clothing group
@@ -261,7 +255,7 @@ public class API {
         if (stack.getItem().getRegistryName() == null) return 0;
 
         String name = stack.getItem().getRegistryName().toString();
-        return giftMap.containsKey(name) ? giftMap.get(name).getValue() : 0;
+        return giftMap.getOrDefault(name, 0.0).intValue();
     }
 
     /**
