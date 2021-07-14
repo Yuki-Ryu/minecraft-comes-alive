@@ -26,7 +26,7 @@ public class Localizer {
         String result = getLocalizedString(key);
 
         //fallback text
-        if (result.equals(key)) {
+        if (result.equals(key) && keyFallback != null) {
             result = getLocalizedString(keyFallback);
         }
 

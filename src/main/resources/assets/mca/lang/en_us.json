@@ -12,6 +12,7 @@
     "entity.minecraft.villager.archer": "Archer",
     "entity.minecraft.villager.hero": "Hero",
     "entity.minecraft.villager.child": "Child",
+    "entity.minecraft.villager.outlawed": "Outlawed",
 
     "entity.mca.grim_reaper": "Grim Reaper",
 
@@ -223,6 +224,8 @@
     "gui.button.kiss": "Kiss",
 
     "gui.button.village": "Village",
+    "gui.button.execute": "Execute",
+    "gui.button.pardon": "Pardon",
 
     "gui.button.divorceInitiate": "Divorce",
     "gui.button.divorceConfirm": "confirm",

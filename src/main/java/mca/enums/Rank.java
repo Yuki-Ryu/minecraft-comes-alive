@@ -48,4 +48,6 @@ public enum Rank {
     public int getTasks() {
         return tasks;
     }
+
+
 }

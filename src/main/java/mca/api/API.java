@@ -9,7 +9,6 @@ import mca.client.gui.component.ButtonEx;
 import mca.core.MCA;
 import mca.core.minecraft.ProfessionsMCA;
 import mca.entity.VillagerEntityMCA;
-import mca.enums.Constraint;
 import mca.enums.Gender;
 import mca.util.Util;
 import net.minecraft.client.Minecraft;
@@ -104,7 +103,6 @@ public class API {
         // Read in buttons
         buttonMap.put("main", Util.readResourceAsJSON("api/gui/main.json", APIButton[].class));
         buttonMap.put("interact", Util.readResourceAsJSON("api/gui/interact.json", APIButton[].class));
-        buttonMap.put("debug", Util.readResourceAsJSON("api/gui/debug.json", APIButton[].class));
         buttonMap.put("work", Util.readResourceAsJSON("api/gui/work.json", APIButton[].class));
         buttonMap.put("locations", Util.readResourceAsJSON("api/gui/locations.json", APIButton[].class));
         buttonMap.put("command", Util.readResourceAsJSON("api/gui/command.json", APIButton[].class));
@@ -299,7 +297,7 @@ public class API {
             // Remove the button if we specify it should not be present on constraint failure
             // Otherwise we just mark the button as disabled.
             boolean isValid = b.isValidForConstraint(screen.getConstraints());
-            if (!isValid && b.getConstraints().contains(Constraint.HIDE_ON_FAIL)) {
+            if (!isValid && b.isHideOnFail()) {
                 guiButton.visible = false;
             } else if (!isValid) {
                 guiButton.active = false;

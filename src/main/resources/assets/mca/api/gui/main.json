@@ -19,7 +19,8 @@
     "height": 20,
     "notifyServer": true,
     "targetServer": false,
-    "constraints": "notfamily|hideonfail"
+    "constraints": "!family",
+    "hideOnFail": true
   },
   {
     "id": 3,
@@ -30,7 +31,8 @@
     "height": 20,
     "notifyServer": true,
     "targetServer": false,
-    "constraints": "family|hideonfail"
+    "constraints": "family",
+    "hideOnFail": true
   },
   {
     "id": 4,
@@ -74,7 +76,8 @@
     "height": 20,
     "notifyServer": false,
     "targetServer": false,
-    "constraints": "family|hideonfail"
+    "constraints": "family",
+    "hideOnFail": true
   },
   {
     "id": 6,
@@ -85,7 +88,8 @@
     "height": 20,
     "notifyServer": true,
     "targetServer": false,
-    "constraints": "spouse|hideonfail"
+    "constraints": "spouse",
+    "hideOnFail": true
   },
   {
     "id": 7,
@@ -107,8 +111,9 @@
     "height": 20,
     "notifyServer": false,
     "targetServer": false,
-    "constraints": "spouse|hideonfail",
-    "isInteraction": true
+    "constraints": "spouse",
+    "isInteraction": true,
+    "hideOnFail": true
   },
   {
     "id": 9,
@@ -119,7 +124,8 @@
     "height": 20,
     "notifyServer": true,
     "targetServer": false,
-    "constraints": "cleric|notspouse|hideonfail",
-    "isInteraction": true
+    "constraints": "cleric,!spouse",
+    "isInteraction": true,
+    "hideOnFail": true
   }
 ]

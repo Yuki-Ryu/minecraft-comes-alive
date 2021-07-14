@@ -12,12 +12,14 @@ import java.util.List;
 import java.util.Random;
 
 public class ProfessionsMCA {
+    public static final VillagerProfession OUTLAWED = new VillagerProfession("outlawed", PointOfInterestType.HOME, ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_FARMER);
     public static final VillagerProfession CHILD = new VillagerProfession("child", PointOfInterestType.HOME, ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_FARMER);
     public static final VillagerProfession GUARD = new VillagerProfession("guard", PointOfInterestType.ARMORER, ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_ARMORER);
     // as set of invalid professions
-    private static final List<VillagerProfession> PROFESSIONS = new ArrayList<>(12);
+    private static final List<VillagerProfession> PROFESSIONS = new ArrayList<>();
 
     public static void register() {
+        Registration.PROFESSIONS.register("outlawed", () -> OUTLAWED);
         Registration.PROFESSIONS.register("child", () -> CHILD);
         Registration.PROFESSIONS.register("guard", () -> GUARD);
 
@@ -44,4 +46,8 @@ public class ProfessionsMCA {
     }
 
 
+    public static boolean isRed(VillagerProfession profession) {
+        //chances are high that this is the only red name
+        return profession == OUTLAWED;
+    }
 }

@@ -65,6 +65,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.village.GossipManager;
 import net.minecraft.village.PointOfInterest;
 import net.minecraft.village.PointOfInterestManager;
@@ -563,7 +564,7 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
     @Override
     public final ITextComponent getDisplayName() {
-        TextComponent name = new StringTextComponent(villagerName.get());
+        TextComponent name = new StringTextComponent((ProfessionsMCA.isRed(getProfession()) ? TextFormatting.RED : "") + villagerName.get());
         if (this.brain.getMemory(MemoryModuleTypeMCA.STAYING).isPresent()) {
             name.append(new StringTextComponent("(Staying)"));
         }
@@ -895,6 +896,16 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
                 closeGUIIfOpen();
                 break;
+            case "gui.button.execute":
+                setProfession(ProfessionsMCA.OUTLAWED);
+                importantProfession.set(true);
+                closeGUIIfOpen();
+                break;
+            case "gui.button.pardon":
+                setProfession(VillagerProfession.NONE);
+                importantProfession.set(false);
+                closeGUIIfOpen();
+                break;
             case "gui.button.infected":
                 isInfected.set(!isInfected.get());
                 break;
@@ -1047,7 +1058,7 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
             //and no house
             if (village.get() >= 0 && building.get() == -1) {
-                Village v = VillageManagerData.get(level).villages.get(this.village.get());
+                Village v = getVillage();
                 if (v == null) {
                     village.set(-1);
                 } else {
@@ -1081,7 +1092,7 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
         if (tickCount % 6000 == 0) {
             //check if village still exists
-            Village v = VillageManagerData.get(level).villages.get(this.village.get());
+            Village v = getVillage();
             if (v == null) {
                 village.set(-1);
                 building.set(-1);
@@ -1413,5 +1424,13 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
     public Gender getGender() {
         return Gender.byId(gender.get());
+    }
+
+    public Village getVillage() {
+        if (village.get() >= 0) {
+            return VillageManagerData.get(level).villages.get(village.get());
+        } else {
+            return null;
+        }
     }
 }

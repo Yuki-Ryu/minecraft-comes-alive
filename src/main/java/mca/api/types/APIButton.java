@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import mca.enums.Constraint;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,19 +30,26 @@ public class APIButton {
     private final boolean notifyServer;   // whether the button press is sent to the server for processing
     @Getter
     private final boolean targetServer;   // whether the button is processed by the villager or the server itself
-    private final String constraints;     // list of EnumConstraints separated by a pipe character |
+    private final String constraints;     // list of EnumConstraints separated by a comma
     @Getter
     private final boolean isInteraction;  // whether the button is an interaction that generates a response and boosts/decreases hearts
+    @Getter
+    private final boolean hideOnFail;  // whether the button is an interaction that generates a response and boosts/decreases hearts
+    @Getter
+    private Map<Constraint, Boolean> constraintMap;  // cached constraints
 
-    public List<Constraint> getConstraints() {
-        return Constraint.fromStringList(constraints);
+    public Map<Constraint, Boolean> getConstraints() {
+        if (constraintMap == null) {
+            constraintMap = Constraint.fromStringList(constraints);
+        }
+        return constraintMap;
     }
 
     //checks if a map of given evaluated constraints apply to this button
     public boolean isValidForConstraint(Map<String, Boolean> checkedConstraints) {
-        List<Constraint> constraints = getConstraints();
-        for (Constraint constraint : constraints) {
-            if (checkedConstraints.get(constraint.getId())) {
+        Map<Constraint, Boolean> constraints = getConstraints();
+        for (Map.Entry<Constraint, Boolean> constraint : constraints.entrySet()) {
+            if (checkedConstraints.get(constraint.getKey().getId()).equals(constraint.getValue())) {
                 return false;
             }
         }
