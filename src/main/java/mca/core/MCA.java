@@ -2,9 +2,9 @@ package mca.core;
 
 import lombok.Getter;
 import mca.api.API;
-import mca.cobalt.localizer.Localizer;
 import mca.client.render.GrimReaperRenderer;
 import mca.client.render.VillagerEntityMCARenderer;
+import mca.cobalt.localizer.Localizer;
 import mca.core.forge.EventHooks;
 import mca.core.forge.Registration;
 import mca.core.minecraft.EntitiesMCA;
@@ -61,6 +61,9 @@ public class MCA {
         return mod.localizer.localize(key, vars);
     }
 
+    public static Localizer getLocalizer() {
+        return mod.localizer;
+    }
 
     public final void setup(FMLCommonSetupEvent event) {
         logger = LogManager.getLogger();

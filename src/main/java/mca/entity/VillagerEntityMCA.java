@@ -50,10 +50,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.MerchantOffer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTDynamicOps;
+import net.minecraft.nbt.*;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
@@ -68,6 +65,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.village.GossipManager;
 import net.minecraft.village.PointOfInterest;
 import net.minecraft.village.PointOfInterestManager;
@@ -177,10 +175,12 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
     public final CIntegerParameter village = data.newInteger("village", -1);
     public final CIntegerParameter building = data.newInteger("buildings", -1);
+    private final GossipManager gossips = new GossipManager();
+    //gift desaturation queue
+    private final List<String> giftDesaturation = new LinkedList<>();
     public int procreateTick = -1;
     @Nullable
     private PlayerEntity interactingPlayer;
-    private final GossipManager gossips = new GossipManager();
     private long lastGossipTime;
     private long lastGossipDecayTime;
 
@@ -233,13 +233,6 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
         return (Brain<VillagerEntityMCA>) this.brain;
     }
 
-    @Override
-    protected void ageBoundaryReached() {
-
-        //sus method
-        super.ageBoundaryReached();
-    }
-
     private void registerBrainGoals(Brain<VillagerEntityMCA> brain) {
         VillagerProfession villagerprofession = this.getVillagerData().getProfession();
         if (this.isBaby()) {
@@ -263,7 +256,6 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
         brain.setDefaultActivity(Activity.IDLE);
         brain.setActiveActivityIfPossible(Activity.IDLE);
         brain.updateActivityFromSchedule(this.level.getDayTime(), this.level.getGameTime());
-
     }
 
     @Nullable
@@ -365,6 +357,13 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
         data.load(CNBT.fromMC(nbt));
 
+        //load gift desaturation queue
+        ListNBT res = nbt.getList("giftDesaturation", 8);
+        for (int i = 0; i < res.size(); i++) {
+            String c = res.getString(i);
+            giftDesaturation.add(c);
+        }
+
         //set speed
         float speed = 1.0f;
 
@@ -388,8 +387,18 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
     @Override
     public final void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
+
         data.save(CNBT.fromMC(nbt));
+
         InventoryUtils.saveToNBT(inventory, nbt);
+
+        //save gift desaturation queue
+        ListNBT giftDesaturationQueue = new ListNBT();
+        for (int i = 0; i < giftDesaturation.size(); i++) {
+            giftDesaturationQueue.addTag(i, StringNBT.valueOf(giftDesaturation.get(i)));
+        }
+        nbt.put("giftDesaturation", giftDesaturationQueue);
+
         nbt.put("Gossips", this.gossips.store(NBTDynamicOps.INSTANCE).getValue());
         nbt.putLong("LastGossipDecay", this.lastGossipDecayTime);
     }
@@ -423,12 +432,17 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
         gene_size.set(centeredRandom());
         gene_width.set(centeredRandom());
 
-        //temperature
+        // temperature
         float temp = level.getBiome(getOnPos()).getBaseTemperature();
 
+        // immigrants
+        if (random.nextInt(100) < MCA.getConfig().immigrantChance) {
+            temp = random.nextFloat() * 2.0f - 0.5f;
+        }
+
         // melanin
-        gene_melanin.set(Util.clamp((random.nextFloat() - 0.5f) * 0.5f + temp * 0.5f));
-        gene_hemoglobin.set(Util.clamp((random.nextFloat() - 0.5f) * 0.5f + temp * 0.5f));
+        gene_melanin.set(Util.clamp((random.nextFloat() - 0.5f) * 0.5f + temp * 0.4f + 0.1f));
+        gene_hemoglobin.set(Util.clamp((random.nextFloat() - 0.5f) * 0.5f + temp * 0.4f + 0.1f));
 
         // TODO hair tend to have similar values than hair, but the used LUT is a little bit random
         gene_eumelanin.set(random.nextFloat());
@@ -543,9 +557,14 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
         return SoundEvents.GENERIC_HURT;
     }
 
+    public final void playWelcomeSound() {
+        //TODO custom sounds?
+        //playSound(SoundEvents.VILLAGER_CELEBRATE, getSoundVolume(), getVoicePitch());
+    }
+
     @Override
     public final ITextComponent getDisplayName() {
-        TextComponent name = new StringTextComponent(villagerName.get());
+        TextComponent name = new StringTextComponent((ProfessionsMCA.isRed(getProfession()) ? TextFormatting.RED : "") + villagerName.get());
         if (this.brain.getMemory(MemoryModuleTypeMCA.STAYING).isPresent()) {
             name.append(new StringTextComponent("(Staying)"));
         }
@@ -669,7 +688,8 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
             playSound(SoundEvents.ZOMBIE_AMBIENT, this.getSoundVolume(), this.getVoicePitch());
         } else {
             DialogueType dialogueType = getMemoriesForPlayer(target).getDialogueType();
-            sendMessageTo(chatPrefix + MCA.localize(dialogueType.getName() + "." + phraseId, paramList.toArray(new String[0])), target);
+            String localizedText = MCA.getLocalizer().localize(dialogueType.getName() + "." + phraseId, "generic." + phraseId, paramList);
+            sendMessageTo(chatPrefix + localizedText, target);
         }
     }
 
@@ -679,6 +699,12 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
     public boolean isMarriedTo(UUID uuid) {
         return spouseUUID.get().orElse(Constants.ZERO_UUID).equals(uuid);
+    }
+
+    public void divorce() {
+        spouseUUID.set(Constants.ZERO_UUID);
+        spouseName.set("");
+        marriageState.set(MarriageState.NOT_MARRIED.getId());
     }
 
     public void marry(PlayerEntity player) {
@@ -703,14 +729,13 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
         //interaction
         String interactionName = button.getIdentifier().replace("gui.button.", "");
         Interaction interaction = Interaction.fromName(interactionName);
+        if (interaction == null) {
+            return;
+        }
 
         //success chance and hearts
-        float successChance = 0.85F;
-        int heartsBoost = 5;
-        if (interaction != null) {
-            heartsBoost = interaction.getHearts(this);
-            successChance = interaction.getSuccessChance(this, memory) / 100.0f;
-        }
+        int heartsBoost = interaction.getHearts(this);
+        float successChance = interaction.getSuccessChance(this, memory) / 100.0f;
 
         boolean succeeded = random.nextFloat() < successChance;
 
@@ -798,13 +823,34 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
                 if (!stack.isEmpty()) {
                     int giftValue = API.getGiftValueFromStack(stack);
                     if (!handleSpecialCaseGift(player, stack)) {
-                        if (stack.getItem() == Items.GOLDEN_APPLE) isInfected.set(false);
-                        else {
+                        if (stack.getItem() == Items.GOLDEN_APPLE) {
+                            //TODO special
+                            isInfected.set(false);
+                        } else {
+                            String id = stack.getDescriptionId();
+                            long occurrences = giftDesaturation.stream().filter(e -> e.equals(id)).count();
+
+                            //check if desaturation fail happen
+                            if (random.nextInt(100) < occurrences * MCA.getConfig().giftDesaturationPenalty) {
+                                giftValue = -giftValue / 2;
+                                say(player, API.getResponseForSaturatedGift(stack));
+                            } else {
+                                say(player, API.getResponseForGift(stack));
+                            }
+
+                            //modify mood and hearts
                             modifyMoodLevel(giftValue / 2 + 2 * MathHelper.sign(giftValue));
                             memory.modHearts(giftValue);
-                            say(player, API.getResponseForGift(stack));
                         }
                     }
+
+                    //add to desaturation queue
+                    giftDesaturation.add(stack.getDescriptionId());
+                    while (giftDesaturation.size() > MCA.getConfig().giftDesaturationQueueLength) {
+                        giftDesaturation.remove(0);
+                    }
+
+                    //particles
                     if (giftValue > 0) {
                         player.getMainHandItem().shrink(1);
                         this.level.broadcastEntityEvent(this, (byte) 16);
@@ -817,13 +863,47 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
             case "gui.button.procreate":
                 if (PlayerSaveData.get(level, player.getUUID()).isBabyPresent()) {
                     say(player, "interaction.procreate.fail.hasbaby");
-
                 } else if (memory.getHearts() < 100) {
                     say(player, "interaction.procreate.fail.lowhearts");
                 } else {
                     procreateTick = 60;
                     isProcreating.set(true);
                 }
+                closeGUIIfOpen();
+                break;
+            case "gui.button.divorcePapers":
+                player.inventory.add(new ItemStack(ItemsMCA.DIVORCE_PAPERS.get()));
+                say(player, "cleric.divorcePapers");
+                closeGUIIfOpen();
+                break;
+            case "gui.button.divorceConfirm":
+                //this lambda is meh
+                int divorcePaper = InventoryUtils.getFirstSlotContainingItem(player.inventory, s -> s.getItem().getDescriptionId().equals(ItemsMCA.DIVORCE_PAPERS.get().getDescriptionId()));
+                Memories memories = getMemoriesForPlayer(player);
+                if (divorcePaper >= 0) {
+                    say(player, "divorcePaper");
+                    player.inventory.getItem(divorcePaper).shrink(1);
+                    memories.modHearts(-20);
+                } else {
+                    say(player, "divorce");
+                    memories.modHearts(-200);
+                }
+                modifyMoodLevel(-5);
+                divorce();
+
+                PlayerSaveData playerData = PlayerSaveData.get(player.level, player.getUUID());
+                playerData.endMarriage();
+
+                closeGUIIfOpen();
+                break;
+            case "gui.button.execute":
+                setProfession(ProfessionsMCA.OUTLAWED);
+                importantProfession.set(true);
+                closeGUIIfOpen();
+                break;
+            case "gui.button.pardon":
+                setProfession(VillagerProfession.NONE);
+                importantProfession.set(false);
                 closeGUIIfOpen();
                 break;
             case "gui.button.infected":
@@ -978,7 +1058,7 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
             //and no house
             if (village.get() >= 0 && building.get() == -1) {
-                Village v = VillageManagerData.get(level).villages.get(this.village.get());
+                Village v = getVillage();
                 if (v == null) {
                     village.set(-1);
                 } else {
@@ -1012,7 +1092,7 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
         if (tickCount % 6000 == 0) {
             //check if village still exists
-            Village v = VillageManagerData.get(level).villages.get(this.village.get());
+            Village v = getVillage();
             if (v == null) {
                 village.set(-1);
                 building.set(-1);
@@ -1283,8 +1363,8 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
     }
 
     @Override
-    public void setBaby(boolean p_82227_1_) {
-        this.setAge(p_82227_1_ ? -AgeState.startingAge : 0);
+    public void setBaby(boolean isBaby) {
+        this.setAge(isBaby ? -AgeState.startingAge : 0);
     }
 
     //TODO
@@ -1344,5 +1424,13 @@ public class VillagerEntityMCA extends VillagerEntity implements INamedContainer
 
     public Gender getGender() {
         return Gender.byId(gender.get());
+    }
+
+    public Village getVillage() {
+        if (village.get() >= 0) {
+            return VillageManagerData.get(level).villages.get(village.get());
+        } else {
+            return null;
+        }
     }
 }

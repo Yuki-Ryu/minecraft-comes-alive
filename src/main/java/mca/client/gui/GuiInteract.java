@@ -7,7 +7,6 @@ import mca.client.gui.component.ButtonEx;
 import mca.cobalt.network.NetworkHandler;
 import mca.core.Constants;
 import mca.core.MCA;
-import mca.core.minecraft.ProfessionsMCA;
 import mca.entity.VillagerEntityMCA;
 import mca.entity.data.Memories;
 import mca.enums.Chore;
@@ -37,9 +36,9 @@ import java.util.Objects;
 public class GuiInteract extends Screen {
     private static final ResourceLocation ICON_TEXTURES = new ResourceLocation("mca:textures/gui.png");
     private final VillagerEntityMCA villager;
-    private Map<String, Boolean> constraints;
     private final PlayerEntity player;
     private final float iconScale = 1.5f;
+    private Map<String, Boolean> constraints;
     private boolean inGiftMode;
     private int timeSinceLastClick;
     private int mouseX;
@@ -72,6 +71,7 @@ public class GuiInteract extends Screen {
     @Override
     public void init() {
         NetworkHandler.sendToServer(new GetInteractDataRequest(villager.getUUID()));
+        this.activeKey = "main";
     }
 
     public void addExButton(ButtonEx b) {
@@ -94,6 +94,11 @@ public class GuiInteract extends Screen {
 
         mouseX = (int) (minecraft.mouseHandler.xpos() * width / minecraft.getWindow().getWidth());
         mouseY = (int) (minecraft.mouseHandler.ypos() * height / minecraft.getWindow().getHeight());
+
+        if (activeKey.equals("divorce")) {
+            drawCenteredString(transform, font, MCA.localize("gui.village.divorceConfirmation"), width / 2, 105, 0xFFFFFF);
+            drawCenteredString(transform, font, MCA.localize("gui.village.divorcePaperWarning"), width / 2, 160, 0xFFFFFF);
+        }
     }
 
     @Override
@@ -314,6 +319,12 @@ public class GuiInteract extends Screen {
         } else if (id.equals("gui.button.clothing")) {
             activeKey = "clothing";
             drawClothingMenu();
+        } else if (id.equals("gui.button.divorceInitiate")) {
+            activeKey = "divorce";
+            drawDivorceMenu();
+        } else if (id.equals("gui.button.divorceCancel")) {
+            activeKey = "main";
+            drawMainButtonMenu();
         } else if (id.equals("gui.button.familyTree")) {
             Minecraft.getInstance().setScreen(new GuiFamilyTree(villager.getUUID()));
         } else if (id.equals("gui.button.work")) {
@@ -380,6 +391,11 @@ public class GuiInteract extends Screen {
     private void drawClothingMenu() {
         clearButtons();
         API.addButtons("clothing", this);
+    }
+
+    private void drawDivorceMenu() {
+        clearButtons();
+        API.addButtons("divorce", this);
     }
 
     private void drawWorkButtonMenu() {

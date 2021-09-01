@@ -3,29 +3,48 @@ package mca.cobalt.localizer;
 import net.minecraft.util.text.LanguageMap;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Localizer {
     private final ArrayList<VarParser> registeredVarParsers = new ArrayList<>();
 
     public String localize(String key, String... vars) {
-        ArrayList<String> list = new ArrayList<>();
-        Collections.addAll(list, vars);
-        return localize(key, list);
+        return localize(key, null, vars);
     }
 
-    public String localize(String key, ArrayList<String> vars) {
-        LanguageMap localizerMap = LanguageMap.getInstance();
+    private final static Pattern pattern = Pattern.compile("^[0-9]+$");
 
-        String result = localizerMap.getOrDefault(key);
+    public String localize(String key, String keyFallback, String... vars) {
+        ArrayList<String> list = new ArrayList<>();
+        Collections.addAll(list, vars);
+        return localize(key, keyFallback, list);
+    }
 
-        //multi-variant text
-        if (result.equals(key)) {
-            List<String> responses = localizerMap.getLanguageData().entrySet().stream().filter(entry -> entry.getKey().startsWith(key)).map(Map.Entry::getValue).collect(Collectors.toList());
-            if (responses.size() > 0) result = responses.get(new Random().nextInt(responses.size()));
+    public String localize(String key, String keyFallback, ArrayList<String> vars) {
+        //text
+        String result = getLocalizedString(key);
+
+        //fallback text
+        if (result.equals(key) && keyFallback != null) {
+            result = getLocalizedString(keyFallback);
         }
 
         return parseVars(result, vars);
+    }
+
+    private String getLocalizedString(String key) {
+        //filter all translations, which starts with the key and optionally has numbers behind
+        List<String> responses = LanguageMap.getInstance().getLanguageData().entrySet().stream().filter(entry -> {
+            String k = entry.getKey();
+            return k.startsWith(key) && (k.length() == key.length() || pattern.matcher(k.substring(key.length())).matches());
+        }).map(Map.Entry::getValue).collect(Collectors.toList());
+
+        if (responses.size() > 0) {
+            return responses.get(new Random().nextInt(responses.size()));
+        }
+
+        return key;
     }
 
     public void registerVarParser(VarParser parser) {

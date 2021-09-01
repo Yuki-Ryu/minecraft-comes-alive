@@ -9,19 +9,16 @@ import mca.client.gui.component.ButtonEx;
 import mca.core.MCA;
 import mca.core.minecraft.ProfessionsMCA;
 import mca.entity.VillagerEntityMCA;
-import mca.enums.Constraint;
 import mca.enums.Gender;
 import mca.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.merchant.villager.VillagerProfession;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -30,7 +27,7 @@ import java.util.*;
  * Class API handles interaction with MCAs configurable options via JSON in the resources folder
  */
 public class API {
-    private static final Map<String, Gift> giftMap = new HashMap<>();
+    private static final Map<String, Double> giftMap = new HashMap<>();
     private static final Map<String, APIButton[]> buttonMap = new HashMap<>();
     private static final Map<String, APIIcon> iconMap = new HashMap<>();
     private static final List<String> maleNames = new ArrayList<>();
@@ -106,11 +103,11 @@ public class API {
         // Read in buttons
         buttonMap.put("main", Util.readResourceAsJSON("api/gui/main.json", APIButton[].class));
         buttonMap.put("interact", Util.readResourceAsJSON("api/gui/interact.json", APIButton[].class));
-        buttonMap.put("debug", Util.readResourceAsJSON("api/gui/debug.json", APIButton[].class));
         buttonMap.put("work", Util.readResourceAsJSON("api/gui/work.json", APIButton[].class));
         buttonMap.put("locations", Util.readResourceAsJSON("api/gui/locations.json", APIButton[].class));
         buttonMap.put("command", Util.readResourceAsJSON("api/gui/command.json", APIButton[].class));
         buttonMap.put("clothing", Util.readResourceAsJSON("api/gui/clothing.json", APIButton[].class));
+        buttonMap.put("divorce", Util.readResourceAsJSON("api/gui/divorce.json", APIButton[].class));
 
         // Icons
         Type mapType = new TypeToken<Map<String, APIIcon>>() {
@@ -118,14 +115,8 @@ public class API {
         iconMap.putAll((new Gson()).fromJson(Util.readResource("api/gui/icons.json"), mapType));
 
         // Load gifts and assign to the appropriate map with a key value pair and print warnings on potential issues
-        Gift[] gifts = Util.readResourceAsJSON("api/gifts.json", Gift[].class);
-        for (Gift gift : gifts) {
-            if (!gift.exists()) {
-                MCA.log("Could not find gift item or block in registry: " + gift.getName());
-            } else {
-                giftMap.put(gift.getName(), gift);
-            }
-        }
+        Map<String, Double> gifts = Util.readResourceAsJSON("api/gifts.json", Map.class);
+        giftMap.putAll(gifts);
     }
 
     //returns the clothing group based of gender and profession, or a random one in case of an unknown clothing group
@@ -262,7 +253,7 @@ public class API {
         if (stack.getItem().getRegistryName() == null) return 0;
 
         String name = stack.getItem().getRegistryName().toString();
-        return giftMap.containsKey(name) ? giftMap.get(name).getValue() : -5;
+        return giftMap.getOrDefault(name, 0.0).intValue();
     }
 
     /**
@@ -274,6 +265,10 @@ public class API {
     public static String getResponseForGift(ItemStack stack) {
         int value = getGiftValueFromStack(stack);
         return "gift." + (value <= 0 ? "fail" : value <= 5 ? "good" : value <= 10 ? "better" : "best");
+    }
+
+    public static String getResponseForSaturatedGift(ItemStack stack) {
+        return "saturatedGift";
     }
 
     /**
@@ -291,8 +286,8 @@ public class API {
     /**
      * Adds API buttons to the GUI screen provided.
      *
-     * @param guiKey   String key for the GUI's buttons
-     * @param screen   Screen instance the buttons should be added to
+     * @param guiKey String key for the GUI's buttons
+     * @param screen Screen instance the buttons should be added to
      */
     public static void addButtons(String guiKey, GuiInteract screen) {
         for (APIButton b : buttonMap.get(guiKey)) {
@@ -302,7 +297,7 @@ public class API {
             // Remove the button if we specify it should not be present on constraint failure
             // Otherwise we just mark the button as disabled.
             boolean isValid = b.isValidForConstraint(screen.getConstraints());
-            if (!isValid && b.getConstraints().contains(Constraint.HIDE_ON_FAIL)) {
+            if (!isValid && b.isHideOnFail()) {
                 guiButton.visible = false;
             } else if (!isValid) {
                 guiButton.active = false;

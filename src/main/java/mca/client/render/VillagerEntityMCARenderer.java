@@ -26,18 +26,6 @@ import java.util.List;
 public class VillagerEntityMCARenderer extends BipedRenderer<VillagerEntityMCA, VillagerEntityModelMCA<VillagerEntityMCA>> {
     List<VillagerEntityBaseModelMCA<VillagerEntityMCA>> models = new LinkedList<>();
 
-    private VillagerEntityModelMCA<VillagerEntityMCA> createModel(float modelSize, float headSize, boolean cloth, boolean hideWear) {
-        VillagerEntityModelMCA<VillagerEntityMCA> m = new VillagerEntityModelMCA<>(modelSize, headSize, cloth, hideWear);
-        models.add(m);
-        return m;
-    }
-
-    private VillagerEntityArmorModelMCA<VillagerEntityMCA> createArmorModel(float modelSize) {
-        VillagerEntityArmorModelMCA<VillagerEntityMCA> m = new VillagerEntityArmorModelMCA<>(modelSize, modelSize);
-        models.add(m);
-        return m;
-    }
-
     public VillagerEntityMCARenderer(EntityRendererManager manager) {
         super(manager, new VillagerEntityModelMCA<>(), 0.5F);
 
@@ -49,6 +37,18 @@ public class VillagerEntityMCARenderer extends BipedRenderer<VillagerEntityMCA, 
                 createArmorModel(0.5f),
                 createArmorModel(1.0f)));
         this.addLayer(new HeldItemLayer<>(this));
+    }
+
+    private VillagerEntityModelMCA<VillagerEntityMCA> createModel(float modelSize, float headSize, boolean cloth, boolean hideWear) {
+        VillagerEntityModelMCA<VillagerEntityMCA> m = new VillagerEntityModelMCA<>(modelSize, headSize, cloth, hideWear);
+        models.add(m);
+        return m;
+    }
+
+    private VillagerEntityArmorModelMCA<VillagerEntityMCA> createArmorModel(float modelSize) {
+        VillagerEntityArmorModelMCA<VillagerEntityMCA> m = new VillagerEntityArmorModelMCA<>(modelSize, modelSize);
+        models.add(m);
+        return m;
     }
 
     @Override
@@ -74,13 +74,16 @@ public class VillagerEntityMCARenderer extends BipedRenderer<VillagerEntityMCA, 
 
     @Override
     public void render(VillagerEntityMCA villager, float p_225623_2_, float p_225623_3_, MatrixStack p_225623_4_, IRenderTypeBuffer p_225623_5_, int p_225623_6_) {
-        model.headSize = villager.getAgeState().getHead();
-        model.breastSize = villager.getGender() == Gender.FEMALE ? villager.gene_breast.get() * villager.getAgeState().getBreasts() : 0.0f;
+        AgeState ageState = villager.getAgeState();
+        model.headSize = ageState.getHead();
+        model.headWidth = model.headSize / ageState.getWidth();
+        model.breastSize = villager.getGender() == Gender.FEMALE ? villager.gene_breast.get() * ageState.getBreasts() : 0.0f;
 
         //also apply this to the layers models, not sure if this is the intended solution
         for (VillagerEntityBaseModelMCA<VillagerEntityMCA> m : models) {
             m.breastSize = this.model.breastSize;
             m.headSize = this.model.headSize;
+            m.headWidth = this.model.headWidth;
         }
 
         super.render(villager, p_225623_2_, p_225623_3_, p_225623_4_, p_225623_5_, p_225623_6_);

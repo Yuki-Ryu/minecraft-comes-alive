@@ -12,6 +12,7 @@
     "entity.minecraft.villager.archer": "Archer",
     "entity.minecraft.villager.hero": "Hero",
     "entity.minecraft.villager.child": "Child",
+    "entity.minecraft.villager.outlawed": "Outlawed",
 
     "entity.mca.grim_reaper": "Grim Reaper",
 
@@ -136,7 +137,7 @@
 
     "gui.village.left": "You left %v1%.",
     "gui.village.welcome": "Welcome to %v1%!",
-    "gui.village.taxes": "%v1% paid their taxes!",
+    "gui.village.taxesPaid": "%v1% paid their taxes!",
     "gui.village.taxesNotImplemented": "WIP, please be patient!",
 
     "gui.village.taxes": "Taxes",
@@ -146,6 +147,9 @@
     "gui.village.rankTooLow": "You need a higher rank.",
     "gui.village.rank": "Rank: %v1%",
     "gui.village.reputation": "Reputation: %v1%",
+
+    "gui.village.divorceConfirmation": "Do you really want a divorce?",
+    "gui.village.divorcePaperWarning": "A cleric can provide divorce papers to decrease penalties.",
 
     "gui.building.size": "size: %v1% blocks",
     "gui.building.anySize": "size: any",
@@ -220,6 +224,13 @@
     "gui.button.kiss": "Kiss",
 
     "gui.button.village": "Village",
+    "gui.button.execute": "Execute",
+    "gui.button.pardon": "Pardon",
+
+    "gui.button.divorceInitiate": "Divorce",
+    "gui.button.divorceConfirm": "confirm",
+    "gui.button.divorceCancel": "cancel",
+    "gui.button.divorcePapers": "divorce papers",
 
     "gui.button.clothing.randClothing": "Random Clothes",
     "gui.button.clothing.prevClothing": "Prev",
@@ -237,7 +248,6 @@
 
     "gui.button.start": "Start",
     "gui.button.stop": "Stop",
-    "gui.button.divorce": "Divorce",
     "gui.button.hire": "Hire",
     "gui.button.hired": "Hired",
     "gui.button.accept": "Accept",
@@ -451,6 +461,19 @@
     "notify.child.grownup": "%v1% has grown into an adult!",
     "notify.revival.disabled": "Revivals have been disabled by the server administrator.",
     "notify.trading.disabled": "Trading is disabled by the server administrator.",
+
+    "adult.saturatedGift1": "Not another one of these!",
+    "child.saturatedGift1": "I already have enough of these!",
+    "childp.saturatedGift1": "I already have enough of these!",
+    "spouse.saturatedGift1": "Darling, we have enough of that!",
+
+    "adult.welcome1": "Welcome back, %v1%!",
+    "child.welcome1": "Hi %v1%!",
+    "childp.welcome1": "Hi %v1%!",
+    "spouse.welcome1": "Welcome home Darling!",
+
+    "generic.welcomeFoe1": "Not you again!",
+    "generic.cleric.divorcePapers": "Here you go, bring these papers to your spouse to confirm the divorce.",
 
     "adult.gift.fail1": "This isn't a good gift...",
     "adult.gift.fail2": "What made you think that I would like this?",
@@ -747,7 +770,7 @@
     "spouse.hug.fail2": "No thanks.",
     "spouse.hug.fail3": "Man, you stink.",
     "spouse.hug.fail4": "What do you want?",
-    "spouse.hug.fail5": "Huge someone else.",
+    "spouse.hug.fail5": "Hug someone else.",
     "spouse.kiss.success1": "I fall in love all over again when our lips meet!",
     "spouse.kiss.success2": "Time stops ticking when I'm with you.",
     "spouse.kiss.success3": "Sweet as cake!",
@@ -772,6 +795,8 @@
     "spouse.endmarriage2": "I'm leaving. Forever! Don't look for me.",
     "spouse.endmarriage3": "I'm sorry - I thought we could work things out, but it's not working for me. Goodbye.",
     "spouse.endmarriage4": "%v1%, this is goodbye. Don't try to follow me.",
+    "spouse.divorce1": "I hate you, %v1%!",
+    "spouse.divorcePaper1": "Okay...",
     "spouse.gift.fail1": "Oh honey...this is just terrible.",
     "spouse.gift.fail2": "Um, is this supposed to be a gift for me?",
     "spouse.gift.fail3": "Throw away your own junk! Oh, this was a gift?...sorry.",

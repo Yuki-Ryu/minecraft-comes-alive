@@ -4,9 +4,9 @@ public enum Rank {
     OUTLAW(0, Integer.MIN_VALUE, 0),
     PEASANT(1, 0, 0),
     MERCHANT(2, 20, 1),
-    NOBE(3, 40, 3),
+    NOBLE(3, 40, 3),
     MAYOR(4, 60, 4),
-    MING(5, 80, 4);
+    KING(5, 80, 4);
 
     final int id;
     final int reputation;
@@ -48,4 +48,6 @@ public enum Rank {
     public int getTasks() {
         return tasks;
     }
+
+
 }
